@@ -10,7 +10,7 @@ Parameters:
 Resources:
 
   SecurityGroup:
-    Type: AWS::EC2::SecurityGroup
+    Type: "AWS::EC2::SecurityGroup"
     Properties:
       GroupDescription: !Sub 'Internal Security group for ${AWS::StackName}'
       SecurityGroupIngress:
@@ -41,13 +41,11 @@ Resources:
       Tags:
         - Key: Name
           Value: !Ref AWS::StackName
-
   InstanceProfile:
     Type: "AWS::IAM::InstanceProfile"
     Properties:
       Roles:
         - Ref: InstanceRole
-
   Instance:
     Type: AWS::EC2::Instance
     CreationPolicy: 
@@ -99,9 +97,9 @@ Resources:
             nvm use v12.7.0
 
             # Download latest code, unzip it into /home/ec2-user/app
-            wget https://github.com/<username>/aws-bootstrap/archive/master.zip 
-            unzip master.zip
-            mv aws-bootstrap-master app
+            wget https://github.com/itspriyansh/aws-bootstrap/archive/main.zip 
+            unzip main.zip
+            mv aws-bootstrap-main app
 
             # Create log directory
             mkdir -p /home/ec2-user/app/logs
@@ -117,7 +115,14 @@ Resources:
 
           # Signal to CloudFormation that the instance is ready
           /opt/aws/bin/cfn-signal -e $? --stack ${AWS::StackName} --region ${AWS::Region} --resource Instance 
+          
       Tags:
         - Key: Name
           Value: !Ref AWS::StackName
-# Outputs:
+
+Outputs:
+  InstanceEndpoint:
+    Description: The DNS name for the created instance
+    Value: !Sub "http://${Instance.PublicDnsName}:8080" 
+    Export:
+      Name: InstanceEndpoint
